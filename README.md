@@ -1,4 +1,9 @@
-# 📘 Apostila Completa de Sistemas Embarcados — ESP32 (ESP-IDF)
+
+![alt text](capaif.png)
+
+
+
+## 📘 Apostila Completa de Sistemas Embarcados — ESP32 (ESP-IDF)
 
 Esta apostila foi construída para levar você do zero absoluto em sistemas embarcados até um nível **pleno** de desenvolvimento com o ESP32 usando o framework oficial **ESP-IDF**. Ela começa com uma visão panorâmica de microcontroladores em geral (PIC, AVR, ARM Cortex-M, STM32, ESP32/Xtensa) — porque entender **por que** o ESP32 é como é fica muito mais fácil quando você sabe com o que ele está sendo comparado — e depois aprofunda em cada subsistema do chip, do GPIO mais simples até FreeRTOS, DMA, Wi-Fi/BLE e, por fim, noções de projeto de PCB para colocar o ESP32 em produção.
 
@@ -1603,3 +1608,5 @@ Uma sugestão de progressão prática, usando o conteúdo desta apostila como es
 ---
 
 <p align="center">📘 Apostila de Sistemas Embarcados — ESP32 (ESP-IDF), do fundamento ao nível pleno.</p>
+
+## Para iniciar o projeto, leia o CONFIG.md

@@ -1,0 +1,2 @@
+source /project/bloco_0-ambiente/hello_word/build/gdbinit/symbols
+source /project/bloco_0-ambiente/hello_word/build/gdbinit/connect

@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/project/bloco_0-ambiente/hello_word/build/CMakeFiles/bootloader
+/project/bloco_0-ambiente/hello_word/build/CMakeFiles/bootloader.rule
+/project/bloco_0-ambiente/hello_word/build/CMakeFiles/bootloader-complete.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/project/bloco_0-ambiente/hello_word/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
