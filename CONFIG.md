@@ -1,4 +1,8 @@
+![alt text](capaLilygo.jpeg)
+
 ## Configuração inicial.
+Neste exercícios estou utilizando a placa lilygo T-A7670E da própria lilygo ``` https://github.com/Xinyuan-LilyGO/LilyGo-Modem-Series```.
+Segue a sequência de configuração inicial para deixar o ambiente de desenvolvimento no capricho
 
 - Sistema operacional Linux(fuja do windowns para desenvolvimento)
 - Instalar o docker (não o desctop)
