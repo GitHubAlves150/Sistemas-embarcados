@@ -1,4 +1,0 @@
-Command: cmake -G Ninja -B /project/bloco_0-ambiente/hello_word/build -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/opt/esp/python_env/idf6.2_py3.12_env/bin/python -DESP_PLATFORM=1 -DIDF_TARGET=esp32 -DCCACHE_ENABLE=True -DCONFIGDEP_ENABLE=True /project/bloco_0-ambiente/hello_word
-NOTE: Kconfig parser version: 1
-NOTE: Kconfig defaults policy: use sdkconfig
-NOTE: Status: Finished successfully

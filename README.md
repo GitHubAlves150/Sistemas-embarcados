@@ -1,5 +1,5 @@
 
-![alt text](capaif.png)
+![alt text](img/capaif.png)
 
 
 
