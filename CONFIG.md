@@ -1,40 +1,76 @@
-![alt text](capaLilygo.jpeg)
+![alt text](Pinout.png)
 
-## Configuração inicial.
-Neste exercícios estou utilizando a placa lilygo T-A7670E da própria lilygo ``` https://github.com/Xinyuan-LilyGO/LilyGo-Modem-Series```.
-Segue a sequência de configuração inicial para deixar o ambiente de desenvolvimento no capricho
+Seguindo a apostila que está no README.md no capítulo 5(GPIO no Esp32). Vamos fazer um pisca LED simples para começar a conhecer os pinos do hardware do lilygo(você pode usar qualquer esp32, estou usando o lilygo por que irei usar para fins de iot tracker mais pra frente).
 
-- Sistema operacional Linux(fuja do windowns para desenvolvimento)
-- Instalar o docker (não o desctop)
-- Criar um repositório no github e clonar na sua máquina(Deixar ela sincronizada com seu gitHub)
-- Dentro do seu repositório baixe a imagem oficial da espressif ```docker pull espressif/idf:latest``` 
-- Identifica a porta em que o esp32 está conectada no seu linux
-- Puxar a imagen oficial da espressif
-```docker pull espressif/idf:latest```
+## Antes de seguirmos, verifica se o intelissense de dentro do container está funcionando, digita por exemplo ``` #include "freertos/FreeRTOS.h ``` para ver se o vscode preenche o resto. Caso não, siga o path abaixo.
 
-- Criar o container(Atenção!!!)
+## 🛠️ Roadmap: Configuração do IntelliSense no VS Code via Docker
 
-```bash
-docker run -dit \
-  --name esp32-dev \
-  -v ~/Documents/Sistemas-embarcados:/project \ # Aqui eu coloquei o caminho do meu repositório sincronizado com meu github - faça com o seu
-  -w /project \
-  --device=/dev/ttyACM0 \ # Mude para sua porta
-  espressif/idf bash
+1. Requisitos no VS Code (Máquina Host)
 
-  ```
-- Dentro do container rode os comandos abaixo para poder usar o idf.py 
-```. $IDF_PATH/export.sh```
-- Ou dependendo da versão da imagem ```source /opt/esp/idf/export.sh```
-- ```idf.py --version```
-- Ou rode ``` echo 'source /opt/esp/idf/export.sh' >> ~/.bashrc``` para ficar permanente
+    Extensão Dev Containers: Permite anexar o VS Code diretamente ao container em execução (Dev Containers: Attach to Running Container...).
 
-## Vamos testar o hello word!
-Entre no seu container e copie o exemplo que vem junto na imagem para dentro da sua pasta de projetos.
-```cp -r /opt/esp/idf/examples/get-started/hello_world/* hello_world/```
-```cd hello_world ``` 
-- Defina o target do dsipositivo ```idf.py set-target esp32``` 
-- Compile ``` idf.py build```
-- Grave ``` idf.py -p /dev/ttyACM0 flash```
-- Monitora ```idf.py -p /dev/ttyACM0 monitor```
+    Extensão C/C++ da Microsoft: Deve estar instalada dentro do container (o VS Code pedirá para instalar no container assim que você conectar).
+
+2. Estrutura do Projeto ESP-IDF (Dentro da pasta)
+
+Verifique se a hierarquia de arquivos e nomes do projeto está alinhada:
+Plaintext
+``` bash
+meu_projeto/
+├── .vscode/
+│   └── c_cpp_properties.json   <-- Configuração do IntelliSense
+├── CMakeLists.txt              <-- CMake principal do projeto
+├── main/
+│   ├── CMakeLists.txt          <-- Registro do componente (SRCS aponta para o arquivo .c correto)
+│   └── main.c (ou blink_led.c)
+└── build/                      <-- Gerado após o idf.py build
+    └── compile_commands.json   <-- Mapeamento de headers/includes
+````
+
+3. Configuração do .vscode/c_cpp_properties.json
+
+Crie ou edite este arquivo na raiz do projeto para indicar ao VS Code onde buscar os comandos de compilação e as pastas dos drivers nativos do ESP-IDF (/opt/esp/idf/components):
+JSON
+``` bash
+{
+  "configurations": [
+    {
+      "name": "ESP-IDF Docker Direct",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/opt/esp/idf/components/**"
+      ],
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+      "cStandard": "c11",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
+}
+```
+4. Fluxo de Trabalho e Inicialização (Comandos)
+
+Sempre que criar um projeto novo ou adicionar dependências:
+
+    Gere os arquivos de compilação na raiz do projeto:
+    Bash
+
+    cd /project/seu_projeto
+    idf.py reconfigure
+    # ou
+    idf.py build
+
+    (Isso cria/atualiza o build/compile_commands.json e o sdkconfig.h).
+
+    Force a atualização do cache do IntelliSense no VS Code:
+
+        Abra a paleta de comandos (Ctrl + Shift + P).
+
+        Rode: C/C++: Reset IntelliSense Database.
+
+        Rode: Developer: Reload Window.
+## Observação!
+Sempre que for abrir o container para trabalhar em algum projeto, abra apartir deste comando: 
+```docker run -it --rm -v $(pwd):/project -w /project espressif/idf:latest```
 
