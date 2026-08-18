@@ -4,65 +4,75 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 
-#define BUTTON_PIN GPIO_NUM_32   // ajuste para o botão físico da sua T-A7670
-#define DEBOUNCE_MS      30
-#define LONG_PRESS_MS   1000
-#define POLL_INTERVAL_MS  10
+#define BUTTON_PIN GPIO_NUM_32 // Pino físico em que o botão está ligado
+#define DEBOUNCE_MS 30         // Tempo de 30ms que o nível do pino precisa ficar estável antes de aceitarmos a mudança como real
+                               // Isso existe por que um botão mecânico, ao ser pressionado ou solto, não faz uma transição limpa de 0 pra 1
+                               // O contato "quica" fisicamente e gera várias transições falsas em poucos milisegundos.
+#define LONG_PRESS_MS 10000    // O LONG_PRESS_MS tem um limite de 1000ms=1s que separa de um click "curto" de um "longo".
+#define POLL_INTERVAL_MS 10    // A cada quantos milisegundos o programa vai checar o pino (10ms=100leituras por segundos)
 
-// Estado lógico "confirmado" do botão (depois do debounce)
-typedef enum {
-    BTN_RELEASED,
-    BTN_PRESSED
-} btn_state_t;
+// RELEASED - Liberado
+// PRESSED  - Pressionado
+
+typedef enum
+{
+    BTN_RELEASED, // enum=0
+    BTN_PRESSED   // 1
+} btn_state_pin;
 
 void app_main(void)
 {
-    gpio_reset_pin(BUTTON_PIN);
-    gpio_set_direction(BUTTON_PIN, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BUTTON_PIN, GPIO_PULLUP_ONLY); // botão liga ao GND quando pressionado
+    gpio_reset_pin(BUTTON_PIN);                       // Reseta o estado do pino para padrão do esp32 - padrão zero
+    gpio_set_direction(BUTTON_PIN, GPIO_MODE_INPUT);  // Define o Pino como entrada
+    gpio_set_pull_mode(BUTTON_PIN, GPIO_PULLUP_ONLY); // Ativa o resilstor de pullup interno
 
-    btn_state_t debounced_state = BTN_RELEASED;
-    btn_state_t last_raw_state  = BTN_RELEASED;
-    int64_t last_change_time_us = 0;
+    // Variaveis de estado que formam uma pequena memória de estado
+    btn_state_pin debounce_state = BTN_RELEASED;
+    btn_state_pin last_raw_state = BTN_RELEASED;
+    int64_t last_cheange_time_us = 0;
     int64_t press_start_us = 0;
 
     int clicks_curtos = 0;
     int clicks_longos = 0;
 
-    while (1) {
-        // nível 0 = pressionado (pull-up interno, botão ao GND)
+    // O loop principal - A lógica de debounce
+    while (1)
+    {
         int level = gpio_get_level(BUTTON_PIN);
-        btn_state_t raw_state = (level == 0) ? BTN_PRESSED : BTN_RELEASED;
-        int64_t now_us = esp_timer_get_time();
+        btn_state_pin raw_state = (level == 0) ? BTN_PRESSED : BTN_RELEASED;
+        int64_t now_us = esp_timer_get_time(); // Pega o timestamp atual em microssegundos
 
-        if (raw_state != last_raw_state) {
-            // o nível bruto mudou agora -> reinicia a contagem de estabilidade
-            last_change_time_us = now_us;
+        // 1. Detectar se o nível bruto mudou desde a última leitura
+        if (raw_state != last_raw_state)
+        {
+            last_cheange_time_us = now_us;
             last_raw_state = raw_state;
+            printf("\nraw_state != last_raw_state confirmado......\n");
         }
 
-        // só aceita a mudança como "real" se ficou estável tempo suficiente
-        if (raw_state != debounced_state &&
-            (now_us - last_change_time_us) >= (DEBOUNCE_MS * 1000)) {
-
-            debounced_state = raw_state;
-
-            if (debounced_state == BTN_PRESSED) {
-                // transição confirmada: solto -> pressionado
+        // 2. Só aceitar a mudança como real depois da estabilidade ser suficiente
+        if (raw_state != debounce_state && (now_us - last_cheange_time_us) >= (DEBOUNCE_MS * 1000))
+        {
+            debounce_state = raw_state;
+            // 3. Reagir à transição confirmada
+            if (debounce_state == BTN_PRESSED)
+            {
                 press_start_us = now_us;
-                printf("Botao pressionado\n");
-            } else {
-                // transição confirmada: pressionado -> solto
+                printf("Botão pressionado\n");
+            }
+            else
+            {
                 int64_t duration_ms = (now_us - press_start_us) / 1000;
 
-                if (duration_ms >= LONG_PRESS_MS) {
+                if (duration_ms >= LONG_PRESS_MS)
+                {
                     clicks_longos++;
-                    printf("Clique LONGO (%lld ms) | curtos=%d longos=%d\n",
-                           duration_ms, clicks_curtos, clicks_longos);
-                } else {
+                    printf("--Click LONGO (%lld ms) | Curto = %d Longo = %d\n", duration_ms, clicks_curtos, clicks_longos);
+                }
+                else
+                {
                     clicks_curtos++;
-                    printf("Clique curto (%lld ms) | curtos=%d longos=%d\n",
-                           duration_ms, clicks_curtos, clicks_longos);
+                    printf("--Click Curto (%lld) | Curto = %d Longo = %d\n", duration_ms, clicks_curtos, clicks_longos);
                 }
             }
         }
