@@ -1,4 +1,4 @@
-![alt text](Pinout.png)
+![alt text](img/Pinout.png)
 
 Seguindo a apostila que está no README.md no capítulo 5(GPIO no Esp32). Vamos fazer um pisca LED simples para começar a conhecer os pinos do hardware do lilygo(você pode usar qualquer esp32, estou usando o lilygo por que irei usar para fins de iot tracker mais pra frente).
 
