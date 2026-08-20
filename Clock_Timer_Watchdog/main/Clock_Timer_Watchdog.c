@@ -21,6 +21,6 @@ void app_main(void)
     // ATENÇÃO: isso nunca cede o processador -> idle task nunca roda -> watchdog dispara
     while (1)
     {
-        
+        printf("ola");
     }
 }
