@@ -1,36 +1,3 @@
-![alt text](img/Temporizador.png)
-
-## Clocks, Timers e Watchdog
-
-### Exercício 3.1:
-- Troque a leitura por polling do botão (Bloco 1) por uma interrupção de borda (GPIO_INTR_NEGEDGE), usando uma fila (xQueueSendFromISR) para sinalizar uma task de tratamento — nada de lógica pesada dentro da ISR.
----
-
-
-# Interrupção por borda com fila.
-
-### Por que esse padrão de interrupção importa.
-
-O problema que resolvemos:
-
-Sistemas embarcados frequentemente precisam reagir a eventos externos assíncronos — um botão pressionado, um sensor de fim de curso acionado, um pacote chegando pela rede — sem saber de antemão quando esses eventos vão acontecer. A abordagem ingênua (polling: checar o pino repetidamente num loop) tem dois problemas sérios em produção:
-
-* **Desperdício de energia e CPU:** checar um pino 100 vezes por segundo quando o evento real acontece poucas vezes por hora é ineficiente — especialmente crítico num projeto como a T-A7670, que roda de bateria 18650 e precisa de deep sleep entre ciclos (Bloco 10 da nossa trilha).
-* **Latência e perda de eventos:** se o intervalo de polling for maior que a duração do evento, você simplesmente perde a informação — um pulso rápido pode acontecer inteiramente entre duas leituras.
-
-## A solução: interrupção + fila + task
-
-O padrão que implementamos — hardware detecta &rarr; ISR enxuta captura o essencial &rarr; fila transporta o dado &rarr; task processa com calma — resolve os dois problemas ao mesmo tempo: o sistema só "acorda" quando há trabalho real a fazer (zero desperdício de CPU em espera), e a captura acontece no exato instante do evento físico (zero perda de precisão), sem que isso comprometa a responsividade do restante do sistema a outras interrupções.
-
-## Por que isso é ainda mais crítico na T-A7670 especificamente
-
-Essa placa terá, ao final da trilha, múltiplas fontes de eventos assíncronos competindo por atenção: o botão físico, o modem avisando dados chegando pela UART, o cartão SD sendo acessado, e (neste exercício) a alimentação externa sendo conectada/desconectada. Sem esse padrão bem estabelecido, o firmware viraria uma bagunça de polling constante em vários pinos ao mesmo tempo — desperdiçando exatamente a energia da bateria que o projeto todo existe para preservar (lembra do Bloco 10, deep sleep). Dominar esse padrão agora, com um caso simples (um botão), é o que viabiliza um firmware limpo e eficiente quando a complexidade aumentar.
-
-
-
-## Código.
-
-```bash
 // Interrupção de borda com fila
 // Engenharia da Computação
 // Lucas Lorenço Alves
@@ -105,4 +72,3 @@ void app_main(void)
     }
 
 }
-``` 
